@@ -11,6 +11,12 @@
   // Modules are scanned in their popularity order. So if you set the value to 100, only the
   // 100 most popular modules will be scanned.
   $nb_modules_to_scan = 500; 
+
+  // Path to the executable 'curl'
+  $curl_command = '/usr/bin/curl';
+
+  // Temp file
+ $tmp_file = "/dev/null";
   
   // ==============================================
   // Sites urls (default, all, ...)
@@ -24,6 +30,7 @@
   curl_setopt($ch, CURLOPT_NOBODY, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
   curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
+  curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.0; rv:24.0) Gecko/20100101 Firefox/24.0");
   do {
     curl_setopt($ch, CURLOPT_URL, "$target/sites/$host/modules/");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
@@ -58,18 +65,18 @@
   // ==============================================
 
   // URL of project list
-  $url_module_usage_base_url = "http://drupal.org";
+  $url_module_usage_base_url = "https://drupal.org";
   $url_module_usage = $url_module_usage_base_url . "/project/usage";
   
   // get the list of all project names
   echo "\nLoading project list ... ";
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL, $url_module_usage);
-  curl_setopt($ch, CURLOPT_HEADER, 0);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-  $html = curl_exec($ch);
-  curl_close($ch);
-  
+  // drupal.org seems to block php_curl simple requests. so let's try another way
+  $command =$curl_command . ' ' . $url_module_usage . " 2>" . $tmp_file;
+  ob_start();
+  passthru($command);
+  $html = ob_get_contents();
+  ob_end_clean();
+ 
   // Parsing the list in order to get more informations
   $projects = array();
   $dom = new domDocument();
@@ -108,6 +115,7 @@
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
       curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+      curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.0; rv:24.0) Gecko/20100101 Firefox/24.0");
       $header = curl_exec($ch);
       $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
        
