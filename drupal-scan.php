@@ -43,7 +43,9 @@
   
   $targets = array(
     $target . "/sites/" . $conf_folder . "/modules",
+    $target . "/sites/" . $conf_folder . "/modules/contrib",
     $target . "/sites/all/modules",
+    $target . "/sites/all/modules/contrib",
   );
     
   echo "\nTargets:\n";
