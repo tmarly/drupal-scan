@@ -75,7 +75,7 @@
   $page_size = 100;
   $nb_pages = ceil($nb_modules_to_scan / 100);
   for ($i = 0; $i < $nb_pages; $i++) {
-    $command =$curl_command . ' ' . $url_module_usage . "?page=" . $i . " 2>" . $tmp_file;
+    $command =$curl_command . ' -L ' . $url_module_usage . "?page=" . $i . " 2>" . $tmp_file;
     ob_start();
     passthru($command);
     $html = ob_get_contents();
