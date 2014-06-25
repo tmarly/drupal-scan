@@ -70,30 +70,34 @@
   
   // get the list of all project names
   echo "\nLoading project list ... ";
-  // drupal.org seems to block php_curl simple requests. so let's try another way
-  $command =$curl_command . ' ' . $url_module_usage . " 2>" . $tmp_file;
-  ob_start();
-  passthru($command);
-  $html = ob_get_contents();
-  ob_end_clean();
- 
-  // Parsing the list in order to get more informations
   $projects = array();
-  $dom = new domDocument();
-  @$dom->loadHtml($html);
-  $table = $dom->getElementById("project-usage-all-projects");
-  $rows = $table->getElementsByTagName("tr");
-  $cpt = 0;
-  foreach($rows as $row) {
-     $project = $row->getElementsByTagName('a')->item(0);
-     $project_name = $project->nodeValue;
-     $url = $url_module_usage_base_url . $project->getAttribute('href');
-     $pos_slash = strrpos($url, "/");
-     $project_id = substr($url, $pos_slash + 1);
-     $projects[] = array("id" => $project_id, "name" => $project_name);
-     if ($nb_modules_to_scan != 0 && count($projects) == $nb_modules_to_scan) {
-      break;
-     }
+  // drupal.org seems to block php_curl simple requests. so let's try another way
+  $page_size = 100;
+  $nb_pages = ceil($nb_modules_to_scan / 100);
+  for ($i = 0; $i < $nb_pages; $i++) {
+    $command =$curl_command . ' ' . $url_module_usage . "?page=" . $i . " 2>" . $tmp_file;
+    ob_start();
+    passthru($command);
+    $html = ob_get_contents();
+    ob_end_clean();
+   
+    // Parsing the list in order to get more informations
+    $dom = new domDocument();
+    @$dom->loadHtml($html);
+    $table = $dom->getElementById("project-usage-all-projects");
+    $rows = $table->getElementsByTagName("tr");
+    $cpt = 0;
+    foreach($rows as $row) {
+       $project = $row->getElementsByTagName('a')->item(0);
+       $project_name = $project->nodeValue;
+       $url = $url_module_usage_base_url . $project->getAttribute('href');
+       $pos_slash = strrpos($url, "/");
+       $project_id = substr($url, $pos_slash + 1);
+       $projects[] = array("id" => $project_id, "name" => $project_name);
+       if ($nb_modules_to_scan != 0 && count($projects) == $nb_modules_to_scan) {
+        break;
+       }
+    }
   }
   $nb_projects = count($projects);
   echo $nb_projects . " projects\n\n";
