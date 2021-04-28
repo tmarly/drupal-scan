@@ -50,7 +50,7 @@ for ($i = 0; $i < $nb_pages; $i++) {
     ob_end_clean();
 
     // Parsing the list in order to get more informations
-    $dom = new domDocument();
+    $dom = new DomDocument();
     @$dom->loadHtml($html);
     $table = $dom->getElementById("project-usage-all-projects");
     $tbody = $table->getElementsByTagName("tbody")[0];
