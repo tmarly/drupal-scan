@@ -20,7 +20,8 @@ $tmp_file = "/dev/null";
 
 // Sites urls to scan
 $targets = array(
-    $target . "/modules/contrib",
+    $target . "/sites/all/modules/contrib",
+    $target . "/sites/default/modules/contrib",
 //    $target . "/sites/default/modules/contrib",
 //    $target . "/sites/all/modules/contrib",
 );
@@ -50,7 +51,7 @@ for ($i = 0; $i < $nb_pages; $i++) {
     ob_end_clean();
 
     // Parsing the list in order to get more informations
-    $dom = new domDocument();
+    $dom = new DomDocument();
     @$dom->loadHtml($html);
     $table = $dom->getElementById("project-usage-all-projects");
     $tbody = $table->getElementsByTagName("tbody")[0];
@@ -81,7 +82,7 @@ $ch = curl_init();
 $cpt_found = 0;
 foreach ($projects as $project) {
     foreach ($targets as $target) {
-        $url = $target . "/" . $project["id"] . "/" . $project["id"] . ".info.yml";
+        $url = $target . "/" . $project["id"] . "/CHANGELOG.txt";
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_NOBODY, false);
@@ -96,12 +97,12 @@ foreach ($projects as $project) {
             // can be either 200 or 403: in both case, that mean the folder exists
             // If 200, we grab the version !
             $version = "";
-            if ($http_code == 200) {
-                preg_match('/^version *:(.*)$/m', $content, $result);
-                if (count($result) >= 2) {
-                    $version = " " . trim($result[1], ' \t\'"');
-                }
-            }
+            //if ($http_code == 200) {
+            //    preg_match('/^version *:(.*)$/m', $content, $result);
+            //    if (count($result) >= 2) {
+            //        $version = " " . trim($result[1], ' \t\'"');
+            //    }
+           // }
             echo str_repeat(chr(8), strlen($message)); // backspace
             echo $project["name"] . $version . ($displayDetails ? (" (" . $url . ")") : "") . "\n";
             echo $message;
